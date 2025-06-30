@@ -1,483 +1,71 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Youcef Tv - مشغل القنوات</title>
-    <!-- مكتبة Plyr لتشغيل الفيديو -->
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-    <!-- خطوط وأيقونات -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500&family=Roboto:wght@300&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro&display=swap" rel="stylesheet">
-    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Youcef TV</title>
     <style>
-        :root {
-            --plyr-color-main: #26ab56;
-            --plyr-control-radius: 8px;
-        }
-        
-        * {
+        /* تنسيقات مخصصة لـ AppCreator24 */
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            list-style: none;
+            overflow-x: hidden;
+            background: #000;
         }
-        
-        body {
-            font-family: 'Cairo', 'Readex Pro', sans-serif;
-            background: #fff;
-            color: #333;
-        }
-        
-        header {
-            background: #26ab56;
-            padding: 2px;
-            color: #fff;
-            margin-bottom: 10px;
-            position: fixed;
-            top: 0;
-            height: 60px;
-            width: 100%;
-            box-shadow: 0px 0px 7px black;
-            z-index: 100;
-        }
-        
-        #i1 {
-            position: fixed;
-            top: 21px;
-            right: 17px;
-            font-size: 40px;
-        }
-        
-        #i2 {
-            position: fixed;
-            top: 21px;
-            left: 14px;
-            font-size: 40px;
-        }
-        
-        #i3 {
-            position: fixed;
-            top: 16px;
-            left: 40px;
-            font-size: 40px;
-        }
-        
-        header img {
-            width: 30px;
-        }
-        
-        h3 {
-            text-align: right;
-            padding-right: 60px;
-            padding-top: 3px;
-            font-size: medium;
-            font-weight: 200;
-            font-family: 'Readex Pro', sans-serif;
-        }
-        
-        /* مشغل الفيديو */
         #player-container {
             position: fixed;
-            top: 60px;
-            left: 0;
-            width: 100%;
-            height: calc(100vh - 60px);
-            background: #000;
-            display: none;
-            z-index: 90;
-        }
-        
-        #player {
-            width: 100%;
-            height: 100%;
-        }
-        
-        /* قائمة القنوات */
-        #channels-page {
-            margin-top: 70px;
-            width: 98%;
-            padding-right: 4px;
-            padding-left: 2px;
-        }
-        
-        #channels-page a {
-            width: 110px;
-            border: 2px solid #2ecb66;
-            height: 140px;
-            display: inline-block;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            text-decoration: none;
-            transition: transform 0.2s;
-        }
-        
-        #channels-page a:hover {
-            transform: scale(1.05);
-            background: #f5f5f5;
-        }
-        
-        #channels-page a img {
-            height: 80px;
-            margin-right: 6px;
-            width: 90%;
-            padding-bottom: 4px;
-            border-radius: 5px;
-        }
-        
-        #channels-page a p {
-            text-align: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: #990000;
-            margin-top: 5px;
-        }
-        
-        /* عناصر التحكم بالمشغل */
-        .player-controls {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            display: flex;
-            justify-content: space-around;
-            z-index: 95;
-            display: none;
-        }
-        
-        .player-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-        
-        /* تحذير اتجاه الشاشة */
-        .orientation-warning {
-            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 200;
-            text-align: center;
-            padding: 20px;
-            color: white;
         }
-        
-        /* شاشة التحميل */
-        .loading-overlay {
-            position: fixed;
-            top: 60px;
-            left: 0;
+        video {
             width: 100%;
-            height: calc(100vh - 60px);
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 110;
-            color: white;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #26ab56;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 15px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* زر العودة */
-        .back-btn {
-            position: fixed;
-            top: 70px;
-            right: 15px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 105;
-            display: none;
-            cursor: pointer;
+            height: 100%;
+            object-fit: contain;
         }
     </style>
 </head>
 <body>
-    <!-- الهيدر -->
-    <header>
-        <i id="i2" class="fa fa-ellipsis-v" style="font-size:20px;color:#fff"></i>
-        <i id="i3" style="font-size:30px;color:#fff"><img src="https://i.imgur.com/IUP1A8c.png"></i>
-        <h3>Youcef Tv</h3>
-    </header>
-    
-    <!-- تحذير اتجاه الشاشة -->
-    <div class="orientation-warning">
-        <h2>الرجاء تدوير الجهاز إلى الوضع الأفقي</h2>
-        <p>التطبيق يعمل بشكل أفضل في وضع الشاشة الأفقية</p>
-    </div>
-    
-    <!-- شاشة التحميل -->
-    <div class="loading-overlay">
-        <div class="spinner"></div>
-        <p>جاري تحميل القناة...</p>
-    </div>
-    
-    <!-- زر العودة -->
-    <button class="back-btn" id="backBtn">
-        <i class="fa fa-arrow-left"></i>
-    </button>
-    
-    <!-- مشغل الفيديو -->
     <div id="player-container">
-        <video id="player" playsinline></video>
+        <video id="player" controls playsinline></video>
     </div>
-    
-    <!-- عناصر التحكم بالمشغل -->
-    <div class="player-controls" id="playerControls">
-        <button class="player-btn" id="playBtn"><i class="fa fa-play"></i></button>
-        <button class="player-btn" id="pauseBtn"><i class="fa fa-pause"></i></button>
-        <button class="player-btn" id="fullscreenBtn"><i class="fa fa-expand"></i></button>
-        <button class="player-btn" id="qualityBtn"><i class="fa fa-cog"></i></button>
-    </div>
-    
-    <!-- قائمة القنوات -->
-    <div id="channels-page">
-        <a href="#" data-channel="B1"><img src="https://h.top4top.io/p_3466sg6u71.png"><p>بى ان سبورت 1</p></a>
-        <a href="#" data-channel="B2"><img src="https://h.top4top.io/p_3466sg6u71.png"><p>بى ان سبورت 2</p></a>
-        <a href="#" data-channel="B3"><img src="https://h.top4top.io/p_3466sg6u71.png"><p>بى ان سبورت 3</p></a>
-        <a href="#" data-channel="B4"><img src="https://h.top4top.io/p_3466sg6u71.png"><p>بى ان سبورت 4</p></a>
-        <a href="#" data-channel="B5"><img src="https://h.top4top.io/p_3466sg6u71.png"><p>بى ان سبورت 5</p></a>
-        <a href="#" data-channel="B6"><img src="https://h.top4top.io/p_3466sg6u71.png"><p>بى ان سبورت 6</p></a>
-        <a href="#" data-channel="B7"><img src="https://h.top4top.io/p_3466sg6u71.png"><p>بى ان سبورت 7</p></a>
-        <a href="#" data-channel="B8"><img src="https://h.top4top.io/p_3466sg6u71.png"><p>بى ان سبورت 8</p></a>
-        <a href="#" data-channel="B9"><img src="https://h.top4top.io/p_3466sg6u71.png"><p>بى ان سبورت 9</p></a>
-        <a href="#" data-channel="B10"><img src="https://h.top4top.io/p_3466sg6u71.png"><p>بى ان سبورت 10</p></a>
-        <a href="#" data-channel="B11"><img src="https://k.top4top.io/p_3467vkvco1.jpeg"><p>Bein sport news</p></a>
-    </div>
-    
-    <!-- مكتبات الجافاسكربت -->
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // بيانات القنوات (يمكن استبدالها بروابطك الفعلية)
-            const channelsData = {
-                "B1": {
-                    name: "بى ان سبورت 1",
-                    logo: "https://h.top4top.io/p_3466sg6u71.png",
-                    src: "https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8",
-                    qualities: [
-                        { name: "720p", url: "https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8" },
-                        { name: "480p", url: "https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8" }
-                    ]
-                },
-                "B2": {
-                    name: "بى ان سبورت 2",
-                    logo: "https://h.top4top.io/p_3466sg6u71.png",
-                    src: "https://example.com/bein2/master.m3u8",
-                    qualities: [
-                        { name: "720p", url: "https://example.com/bein2/720p.m3u8" },
-                        { name: "480p", url: "https://example.com/bein2/480p.m3u8" }
-                    ]
-                },
-                // ... يمكنك إضافة بقية القنوات بنفس الطريقة
-                "B11": {
-                    name: "Bein sport news",
-                    logo: "https://k.top4top.io/p_3467vkvco1.jpeg",
-                    src: "https://www.sportlo.live/BEIN-3/tracks-v1a1/mono.m3u8",
-                    isLive: true
-                }
+        // دالة لتحميل القناة
+        function loadChannel(streamUrl) {
+            const video = document.getElementById('player');
+            
+            // دعم HLS إذا كان متصفح الجهاز يدعمه
+            if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = streamUrl;
+                video.play().catch(e => alert('حدث خطأ في التشغيل: ' + e.message));
+            } 
+            // دعم الأجهزة الأخرى عبر Hls.js
+            else if (window.Hls) {
+                const hls = new Hls();
+                hls.loadSource(streamUrl);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+            } else {
+                alert('المتصفح لا يدعم تشغيل هذا النوع من الفيديو');
+            }
+        }
+
+        // استقبال بيانات من AppCreator24
+        window.onload = function() {
+            // هذه البيانات يجب أن تأتي من المنصة
+            const channelData = {
+                url: "https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8"
             };
+
+    
             
-            // متغيرات المشغل
-            let player;
-            let hls;
-            let currentChannel = null;
-            let currentQuality = 'auto';
-            let isFullscreen = false;
-            
-            // عناصر DOM
-            const playerContainer = document.getElementById('player-container');
-            const channelsPage = document.getElementById('channels-page');
-            const backBtn = document.getElementById('backBtn');
-            const playerControls = document.getElementById('playerControls');
-            const playBtn = document.getElementById('playBtn');
-            const pauseBtn = document.getElementById('pauseBtn');
-            const fullscreenBtn = document.getElementById('fullscreenBtn');
-            const qualityBtn = document.getElementById('qualityBtn');
-            const loadingOverlay = document.querySelector('.loading-overlay');
-            const orientationWarning = document.querySelector('.orientation-warning');
-            
-            // تهيئة المشغل
-            function initPlayer() {
-                player = new Plyr('#player', {
-                    controls: [],
-                    autoplay: true,
-                    seekTime: 10,
-                    disableContextMenu: true
-                });
-                
-                // أحداث المشغل
-                player.on('ready', function() {
-                    console.log('المشغل جاهز');
-                });
-                
-                player.on('play', function() {
-                    playBtn.style.display = 'none';
-                    pauseBtn.style.display = 'block';
-                });
-                
-                player.on('pause', function() {
-                    playBtn.style.display = 'block';
-                    pauseBtn.style.display = 'none';
-                });
-                
-                // الكشف عن اتجاه الشاشة
-                detectOrientation();
-                window.addEventListener('resize', detectOrientation);
-                
-                // إعداد أحداث الأزرار
-                setupButtons();
-                
-                // إعداد أحداث القنوات
-                setupChannelEvents();
-            }
-            
-            // إعداد أحداث القنوات
-            function setupChannelEvents() {
-                document.querySelectorAll('#channels-page a').forEach(link => {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const channelId = this.getAttribute('data-channel');
-                        const channel = channelsData[channelId];
-                        
-                        if (channel) {
-                            playChannel(channel);
-                        }
-                    });
-                });
-            }
-            
-            // تشغيل قناة محددة
-            function playChannel(channel) {
-                // تحديث القناة الحالية
-                currentChannel = channel;
-                
-                // عرض شاشة التحميل
-                showLoading();
-                
-                // إظهار مشغل الفيديو وإخفاء قائمة القنوات
-                playerContainer.style.display = 'block';
-                channelsPage.style.display = 'none';
-                backBtn.style.display = 'flex';
-                playerControls.style.display = 'flex';
-                
-                // إذا كان هناك مشغل HLS موجود، قم بتدميره أولاً
-                if (hls) {
-                    hls.destroy();
-                }
-                
-                // التحقق من دعم HLS
-                if (Hls.isSupported()) {
-                    hls = new Hls({
-                        maxMaxBufferLength: 30,
-                        maxBufferSize: 6000000,
-                        maxBufferLength: 30,
-                        enableWorker: true
-                    });
-                    
-                    // تحميل المانيفست
-                    hls.loadSource(channel.src);
-                    
-                    // إرفاق الوسائط بالمشغل
-                    hls.attachMedia(document.getElementById('player'));
-                    
-                    // عند جاهزية المشغل
-                    hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
-                        // إخفاء شاشة التحميل
-                        hideLoading();
-                        
-                        // التشغيل التلقائي
-                        player.play();
-                    });
-                    
-                    // معالجة الأخطاء
-                    hls.on(Hls.Events.ERROR, function(event, data) {
-                        console.error('خطأ في التشغيل:', data);
-                        hideLoading();
-                        
-                        if (data.fatal) {
-                            switch(data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    alert('خطأ في الشبكة، جاري إعادة المحاولة...');
-                                    hls.startLoad();
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    alert('خطأ في الوسائط، جاري إعادة التشغيل...');
-                                    hls.recoverMediaError();
-                                    break;
-                                default:
-                                    alert('خطأ غير معروف، الرجاء تحديث الصفحة');
-                                    break;
-                            }
-                        }
-                    });
-                }
-                // إذا كان المتصفح يدعم HLS بشكل原生 (مثل Safari على iOS)
-                else if (player.media.canPlayType('application/vnd.apple.mpegurl')) {
-                    player.source = {
-                        type: 'video',
-                        sources: [{
-                            src: channel.src,
-                            type: 'application/vnd.apple.mpegurl'
-                        }]
-                    };
-                    
-                    // إخفاء شاشة التحميل بعد وقت قصير
-                    setTimeout(hideLoading, 1000);
-                }
-                // إذا لم يكن مدعوماً
-                else {
-                    hideLoading();
-                    alert('المتصفح لا يدعم تشغيل هذا النوع من الفيديو');
-                }
-            }
-            
-            // إعداد أحداث الأزرار
-            function setupButtons() {
-                // زر العودة
-                backBtn.addEventListener('click', function() {
-                    playerContainer.style.display = 'none';
-                    channelsPage.style.display = 'block';
-                    backBtn.style.display = 'none';
-                    playerControls.style.display = 'none';
-                    
-                    if (player) {
-                        player.pause();
-                    }
-                });
-                
-                //
+            loadChannel(channelData.url);
+        };
+    </script>
+    
+    <!-- مكتبة Hls.js للدعم الشامل -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</body>
+</html>
