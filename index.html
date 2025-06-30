@@ -1,71 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>BEIN Player</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      height: 100%;
-      overflow: hidden;
-    }
-    #controls {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 10;
-    }
-    button {
-      background: #444;
-      color: #fff;
-      border: none;
-      padding: 10px;
-      margin: 5px;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    video {
-      width: 100vw;
-      height: 100vh;
-      object-fit: contain;
-      background-color: #000;
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.6.1/dist/shaka-player.compiled.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Fullscreen Player</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="controls">
-    <button onclick="playChannel('https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8')">B2</button>
-    <button onclick="playChannel('https://www.sportlo.live/BEIN-3/tracks-v1a1/mono.m3u8')">B3</button>
-    <button onclick="playChannel('https://www.sportlo.live/BEIN-4/tracks-v1a1/mono.m3u8')">B4</button>
-  </div>
+  <video id="videoPlayer" controls autoplay>
+    <source src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" type="application/x-mpegURL">
+    <source src="video.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
 
-  <video id="video" autoplay controls muted></video>
-
-  <script>
-    let player;
-
-    async function initPlayer() {
-      const video = document.getElementById('video');
-      player = new shaka.Player(video);
-      player.addEventListener('error', e => console.error('Shaka Error:', e.detail));
-      await playChannel('https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8');
-    }
-
-    async function playChannel(url) {
-      try {
-        await player.load(url);
-        console.log('Playing:', url);
-      } catch (error) {
-        console.error('Error loading channel:', error);
-        alert("فشل في تحميل البث");
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', initPlayer);
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
