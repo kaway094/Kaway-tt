@@ -1,18 +1,269 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Video Fullscreen Player</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مشغل الفيديو الاحترافي</title>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <style>
+        :root {
+            --plyr-color-main: #ff5722;
+            --plyr-control-radius: 10px;
+            --plyr-video-controls-background: rgba(0,0,0,0.7);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        #player-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1;
+        }
+        
+        #player {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .orientation-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 100;
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .quality-menu {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 8px;
+            padding: 10px;
+            display: none;
+            z-index: 10;
+        }
+        
+        .quality-option {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 2px 0;
+        }
+        
+        .quality-option:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .quality-option.active {
+            background: #ff5722;
+            color: #000;
+        }
+        
+        @media screen and (orientation: portrait) {
+            .orientation-warning {
+                display: flex;
+            }
+        }
+    </style>
 </head>
 <body>
-  <video id="videoPlayer" controls autoplay>
-    <source src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" type="application/x-mpegURL">
-    <source src="video.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
+    <!-- تحذير اتجاه الشاشة -->
+    <div class="orientation-warning">
+        <h2>الرجاء تدوير الجهاز إلى الوضع الأفقي</h2>
+        <p>لتحسين تجربة المشاهدة</p>
+    </div>
+    
+    <!-- مشغل الفيديو -->
+    <div id="player-container">
+        <video id="player" playsinline></video>
+        
+        <!-- قائمة الجودة -->
+        <div class="quality-menu" id="qualityMenu">
+            <div class="quality-option active" data-quality="auto">تلقائي</div>
+            <div class="quality-option" data-quality="720">720p</div>
+            <div class="quality-option" data-quality="480">480p</div>
+        </div>
+    </div>
 
-  <script src="script.js"></script>
+    <!-- مكتبات الجافاسكربت -->
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // قنوات البث
+            const channels = [
+                {
+                    name: "bein 2",
+                    src: "https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8",
+                    qualities: [
+                        { name: "720p", url: "https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8" },
+                        { name: "480p", url: "https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8?quality=480" }
+                    ]
+                },
+                {
+                    name: "bein 3",
+                    src: "https://www.sportlo.live/BEIN-3/tracks-v1a1/mono.m3u8",
+                    qualities: [
+                        { name: "720p", url: "https://www.sportlo.live/BEIN-3/tracks-v1a1/mono.m3u8" },
+                        { name: "480p", url: "https://www.sportlo.live/BEIN-3/tracks-v1a1/mono.m3u8?quality=480" }
+                    ]
+                }
+            ];
+            
+            // متغيرات المشغل
+            let player;
+            let hls;
+            let currentQuality = 'auto';
+            
+            // تهيئة المشغل
+            function initPlayer() {
+                player = new Plyr('#player', {
+                    controls: [
+                        'play-large',
+                        'play',
+                        'progress',
+                        'current-time',
+                        'mute',
+                        'volume',
+                        'settings',
+                        'airplay',
+                        'fullscreen'
+                    ],
+                    settings: ['quality', 'speed'],
+                    speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
+                    tooltips: { controls: true, seek: true },
+                    autoplay: true,
+                    seekTime: 10,
+                    disableContextMenu: true,
+                    fullscreen: { enabled: true, fallback: true, iosNative: true }
+                });
+                
+                // تشغيل القناة الأولى تلقائياً
+                playChannel(channels[0]);
+                
+                // الكشف عن اتجاه الشاشة
+                window.addEventListener('resize', detectOrientation);
+                detectOrientation();
+                
+                // إعداد أحداث الجودة
+                setupQualityControls();
+            }
+            
+            // تشغيل قناة محددة
+            function playChannel(channel) {
+                if (hls) {
+                    hls.destroy();
+                }
+                
+                // إذا كان المتصفح يدعم HLS
+                if (Hls.isSupported()) {
+                    hls = new Hls({
+                        maxMaxBufferLength: 30,
+                        maxBufferSize: 6000000,
+                        maxBufferLength: 30,
+                        enableWorker: true
+                    });
+                    
+                    hls.loadSource(channel.src);
+                    hls.attachMedia(document.getElementById('player'));
+                    
+                    hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
+                        // إعداد خيارات الجودة
+                        setupQualityOptions(data.levels || channel.qualities);
+                        player.play();
+                    });
+                }
+                // دعم Safari و iOS
+                else if (player.media.canPlayType('application/vnd.apple.mpegurl')) {
+                    player.source = {
+                        type: 'video',
+                        sources: [{
+                            src: channel.src,
+                            type: 'application/vnd.apple.mpegurl'
+                        }]
+                    };
+                }
+            }
+            
+            // إعداد عناصر التحكم بالجودة
+            function setupQualityControls() {
+                const qualityBtn = document.querySelector('.plyr__control--settings');
+                if (qualityBtn) {
+                    qualityBtn.addEventListener('click', function() {
+                        const menu = document.getElementById('qualityMenu');
+                        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+                    });
+                }
+                
+                document.querySelectorAll('.quality-option').forEach(option => {
+                    option.addEventListener('click', function() {
+                        setQuality(this.dataset.quality);
+                    });
+                });
+            }
+            
+            // تغيير جودة الفيديو
+            function setQuality(quality) {
+                currentQuality = quality;
+                
+                document.querySelectorAll('.quality-option').forEach(option => {
+                    option.classList.toggle('active', option.dataset.quality === quality);
+                });
+                
+                if (hls) {
+                    if (quality === 'auto') {
+                        hls.currentLevel = -1;
+                    } else {
+                        const level = hls.levels.findIndex(l => l.height === parseInt(quality));
+                        if (level !== -1) {
+                            hls.currentLevel = level;
+                        }
+                    }
+                }
+                
+                document.getElementById('qualityMenu').style.display = 'none';
+            }
+            
+            // الكشف عن اتجاه الشاشة
+            function detectOrientation() {
+                const warning = document.querySelector('.orientation-warning');
+                if (window.innerHeight > window.innerWidth) {
+                    warning.style.display = 'flex';
+                } else {
+                    warning.style.display = 'none';
+                }
+            }
+            
+            // بدء التشغيل
+            initPlayer();
+        });
+    </script>
 </body>
 </html>
