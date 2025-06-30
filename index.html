@@ -2,15 +2,18 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>تشغيل الفيديو</title>
+    <title>تشغيل البث</title>
     <script>
       window.onload = function () {
+        // ✳️ ضع رابط m3u8 الصحيح هنا
         const url = "https://www.sportlo.live/BEIN-1/tracks-v1a1/mono.m3u8";
+        
+        // توجيه إلى المشغل الخارجي
         window.location.href = "intent:" + url + "#Intent;type=video/*;end";
       };
     </script>
   </head>
   <body>
-    <h2 style="text-align:center;">جاري تشغيل الفيديو في المشغل الخارجي...</h2>
+    <h2 style="text-align:center;margin-top:20%;">جاري تشغيل البث المباشر...</h2>
   </body>
 </html>
