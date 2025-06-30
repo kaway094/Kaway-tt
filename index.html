@@ -2,19 +2,32 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>مشغل بث مباشر</title>
+  <title>مشغل مباشر</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       background: black;
+      width: 100%;
       height: 100%;
       overflow: hidden;
     }
+
     #player {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
+      background: black;
+    }
+
+    video {
+      object-fit: contain !important;  /* يحافظ على كامل محتوى الصورة */
+      width: 100% !important;
+      height: 100% !important;
     }
   </style>
 </head>
@@ -22,13 +35,14 @@
   <div id="player"></div>
   <script>
     var player = new Clappr.Player({
-      source: "https://www.sportlo.live/BEIN-1/tracks-v1a1/mono.m3u8",  // ✳️ استبدل بالرابط الصحيح إذا تغيّر
+      source: "https://www.sportlo.live/BEIN-1/tracks-v1a1/mono.m3u8",  // ✅ غيّر الرابط إذا لزم
       parentId: "#player",
       autoPlay: true,
       mute: true,
-      height: "100%",
       width: "100%",
-      poster: "", // يمكنك وضع صورة هنا قبل التشغيل
+      height: "100%",
+      fullscreenEnabled: true,
+      playbackNotSupportedMessage: "المتصفح لا يدعم هذا الفيديو",
     });
   </script>
 </body>
