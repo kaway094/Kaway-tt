@@ -34,16 +34,16 @@
       background-color: #000;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.6.1/shaka-player.compiled.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.6.1/dist/shaka-player.compiled.min.js"></script>
 </head>
 <body>
   <div id="controls">
-    <button onclick="playChannel('https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8')">BEIN 2</button>
-    <button onclick="playChannel('https://www.sportlo.live/BEIN-3/tracks-v1a1/mono.m3u8')">BEIN 3</button>
-    <button onclick="playChannel B4('https://www.sportlo.live/BEIN-4/tracks-v1a1/mono.m3u8')">BEIN 4</button>
+    <button onclick="playChannel('https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8')">B2</button>
+    <button onclick="playChannel('https://www.sportlo.live/BEIN-3/tracks-v1a1/mono.m3u8')">B3</button>
+    <button onclick="playChannel('https://www.sportlo.live/BEIN-4/tracks-v1a1/mono.m3u8')">B4</button>
   </div>
 
-  <video id="video" autoplay controls></video>
+  <video id="video" autoplay controls muted></video>
 
   <script>
     let player;
@@ -51,18 +51,17 @@
     async function initPlayer() {
       const video = document.getElementById('video');
       player = new shaka.Player(video);
-
-      player.addEventListener('error', e => console.error('خطأ:', e.detail));
-      playChannel('https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8');
+      player.addEventListener('error', e => console.error('Shaka Error:', e.detail));
+      await playChannel('https://www.sportlo.live/BEIN-2/tracks-v1a1/mono.m3u8');
     }
 
     async function playChannel(url) {
-      if (!player) return;
       try {
         await player.load(url);
-        console.log('تم تحميل البث:', url);
+        console.log('Playing:', url);
       } catch (error) {
-        console.error('فشل تحميل البث:', error);
+        console.error('Error loading channel:', error);
+        alert("فشل في تحميل البث");
       }
     }
 
