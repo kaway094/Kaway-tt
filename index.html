@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>مشغل فيديو كامل</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    #player {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    video {
+      object-fit: fill !important; /* يمكن تغييره إلى contain أو cover */
+      width: 100% !important;
+      height: 100% !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="player"></div>
+  <script>
+    var player = new Clappr.Player({
+      source: "https://www.sportlo.live/BEIN-1/tracks-v1a1/mono.m3u8",
+      parentId: "#player",
+      autoPlay: true,
+      mute: false,
+      width: "100%",
+      height: "100%",
+      fullscreenEnabled: true,
+      playbackNotSupportedMessage: "هذا المتصفح لا يدعم الفيديو",
+    });
+  </script>
+</body>
+</html>
