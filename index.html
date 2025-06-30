@@ -4,15 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>مشغل الفيديو الاحترافي</title>
-    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <title>مشغل الفيديو المتقدم</title>
     <style>
-        :root {
-            --vjs-theme-primary: #ff5722;
-        }
-        
         * {
             margin: 0;
             padding: 0;
@@ -28,7 +21,7 @@
             overscroll-behavior-y: contain;
         }
         
-        #player-container {
+        #video-container {
             position: fixed;
             top: 0;
             left: 0;
@@ -38,12 +31,64 @@
             z-index: 1;
         }
         
-        .video-js {
+        #video {
             width: 100%;
             height: 100%;
-            position: absolute;
-            top: 0;
+            object-fit: cover;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 0;
             left: 0;
+            width: 100%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .video-container:hover .controls {
+            opacity: 1;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background: rgba(255,255,255,0.2);
+            margin-bottom: 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #ff5722;
+            border-radius: 3px;
+            width: 0%;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        
+        .time {
+            font-size: 14px;
+            margin: 0 10px;
         }
         
         .orientation-warning {
@@ -57,19 +102,10 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            z-index: 10000;
+            z-index: 100;
             text-align: center;
             padding: 20px;
             display: none;
-        }
-        
-        .orientation-warning h2 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-        }
-        
-        .vjs-control-bar {
-            background: rgba(0,0,0,0.7) !important;
         }
         
         @media screen and (orientation: portrait) {
@@ -87,134 +123,147 @@
     </div>
     
     <!-- مشغل الفيديو -->
-    <div id="player-container">
-        <video-js id="player" class="video-js vjs-big-play-centered" playsinline>
-            <p class="vjs-no-js">
-                الرجاء تمكين الجافاسكريبت لمشاهدة الفيديو
-            </p>
-        </video-js>
+    <div id="video-container" class="video-container">
+        <video id="video" playsinline></video>
+        <div class="controls">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="buttons">
+                <button class="btn" id="play-btn">▶</button>
+                <span class="time" id="time">00:00 / 00:00</span>
+                <button class="btn" id="fullscreen-btn">⛶</button>
+            </div>
+        </div>
     </div>
 
     <!-- مكتبات الجافاسكربت -->
-    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.10/shaka-player.compiled.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // قنوات البث
-            const channels = [
-                {
-                    name: "DEN SPORTS 2",
-                    src: "https://www.sportlo.live/DEN-SPORTS-2/tracks-v1a1/mono.m3u8",
-                    poster: "https://via.placeholder.com/1280x720/333/fff?text=DEN+SPORTS+2"
-                },
-                {
-                    name: "bein 3",
-                    src: "https://www.sportlo.live/BEIN-3/tracks-v1a1/mono.m3u8",
-                    poster: "https://via.placeholder.com/1280x720/333/fff?text=BEIN+3"
-                }
-            ];
+            // القنوات المتاحة
+            const channels = {
+                "DEN_SPORTS_2": "https://www.sportlo.live/DEN-SPORTS-2/tracks-v1a1/mono.m3u8",
+                "BEIN_3": "https://www.sportlo.live/BEIN-3/tracks-v1a1/mono.m3u8"
+            };
             
-            // متغيرات المشغل
-            let player;
-            let hls;
+            // العناصر الرئيسية
+            const video = document.getElementById('video');
+            const playBtn = document.getElementById('play-btn');
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            const progressBar = document.getElementById('progress-bar');
+            const timeDisplay = document.getElementById('time');
+            const videoContainer = document.getElementById('video-container');
+            
+            // تهيئة Shaka Player
+            const player = new shaka.Player(video);
             
             // تهيئة المشغل
-            function initPlayer() {
-                // إجبار الوضع الأفقي
-                if (screen.orientation && screen.orientation.lock) {
-                    screen.orientation.lock('landscape').catch(e => console.log(e));
+            async function initPlayer() {
+                try {
+                    // إجبار الوضع الأفقي
+                    if (screen.orientation && screen.orientation.lock) {
+                        await screen.orientation.lock('landscape');
+                    }
+                    
+                    // إخفاء شريط التنقل
+                    document.documentElement.style.overflow = 'hidden';
+                    document.body.style.overflow = 'hidden';
+                    
+                    // تحميل القناة الأولى
+                    await loadChannel(channels.DEN_SPORTS_2);
+                    
+                    // محاولة التشغيل التلقائي
+                    try {
+                        await video.play();
+                        videoContainer.requestFullscreen().catch(e => console.log(e));
+                    } catch (e) {
+                        // إذا فشل التشغيل التلقائي، ننتظر تفاعل المستخدم
+                        playBtn.textContent = '▶';
+                        playBtn.style.display = 'block';
+                    }
+                    
+                    // إعداد عناصر التحكم
+                    setupControls();
+                    
+                } catch (error) {
+                    console.error('Error initializing player:', error);
                 }
+            }
+            
+            // تحميل قناة
+            async function loadChannel(url) {
+                try {
+                    await player.load(url);
+                    console.log('Channel loaded successfully');
+                } catch (e) {
+                    console.error('Error loading channel:', e);
+                }
+            }
+            
+            // إعداد عناصر التحكم
+            function setupControls() {
+                // تحديث شريط التقدم
+                video.addEventListener('timeupdate', updateProgress);
                 
-                // إخفاء شريط التنقل
-                document.documentElement.style.overflow = 'hidden';
-                document.body.style.overflow = 'hidden';
+                // التحكم في التشغيل/الإيقاف
+                playBtn.addEventListener('click', togglePlay);
+                video.addEventListener('click', togglePlay);
                 
-                // إنشاء المشغل
-                player = videojs('player', {
-                    fluid: true,
-                    autoplay: true,
-                    controls: true,
-                    liveui: true,
-                    poster: channels[0].poster,
-                    playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 2],
-                    controlBar: {
-                        remainingTimeDisplay: false,
-                        progressControl: {
-                            seekBar: true
-                        },
-                        pictureInPictureToggle: false
-                    }
+                // التحكم في الشاشة الكاملة
+                fullscreenBtn.addEventListener('click', toggleFullscreen);
+                
+                // القفز إلى وقت معين
+                const progressContainer = document.querySelector('.progress-container');
+                progressContainer.addEventListener('click', (e) => {
+                    const pos = (e.pageX - progressContainer.getBoundingClientRect().left) / progressContainer.offsetWidth;
+                    video.currentTime = pos * video.duration;
                 });
                 
-                // تشغيل القناة الأولى
-                playChannel(channels[0]);
-                
-                // الكشف عن اتجاه الشاشة
-                window.addEventListener('resize', detectOrientation);
-                detectOrientation();
-                
-                // إدارة الشاشة الكاملة
-                player.on('fullscreenchange', function() {
-                    if (!player.isFullscreen()) {
-                        player.requestFullscreen();
-                    }
-                });
-                
-                // تشغيل تلقائي عند التفاعل الأول
-                player.one('play', function() {
-                    player.requestFullscreen();
+                // إظهار/إخفاء عناصر التحكم عند التمرير
+                let controlsTimeout;
+                videoContainer.addEventListener('mousemove', () => {
+                    document.querySelector('.controls').style.opacity = '1';
+                    clearTimeout(controlsTimeout);
+                    controlsTimeout = setTimeout(() => {
+                        document.querySelector('.controls').style.opacity = '0';
+                    }, 3000);
                 });
             }
             
-            // تشغيل قناة محددة
-            function playChannel(channel) {
-                if (hls) {
-                    hls.destroy();
-                }
+            // تحديث شريط التقدم
+            function updateProgress() {
+                const progress = (video.currentTime / video.duration) * 100;
+                progressBar.style.width = `${progress}%`;
                 
-                if (Hls.isSupported()) {
-                    hls = new Hls({
-                        maxMaxBufferLength: 30,
-                        maxBufferSize: 6000000,
-                        maxBufferLength: 30,
-                        enableWorker: true
-                    });
-                    
-                    hls.loadSource(channel.src);
-                    hls.attachMedia(player.tech().el());
-                    
-                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        player.poster(channel.poster);
-                        player.play().catch(e => {
-                            // إذا فشل التشغيل التلقائي، ننتظر تفاعل المستخدم
-                            player.one('click', function() {
-                                player.play();
-                            });
-                        });
-                    });
-                    
-                    hls.on(Hls.Events.ERROR, function(event, data) {
-                        if (data.fatal) {
-                            switch(data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    hls.startLoad();
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    hls.recoverMediaError();
-                                    break;
-                                default:
-                                    initPlayer();
-                                    break;
-                            }
-                        }
-                    });
-                } else if (player.tech().el().canPlayType('application/vnd.apple.mpegurl')) {
-                    player.src({
-                        src: channel.src,
-                        type: 'application/vnd.apple.mpegurl'
-                    });
-                    player.poster(channel.poster);
-                    player.play();
+                // تحديث الوقت
+                const currentMinutes = Math.floor(video.currentTime / 60);
+                const currentSeconds = Math.floor(video.currentTime % 60);
+                const durationMinutes = Math.floor(video.duration / 60);
+                const durationSeconds = Math.floor(video.duration % 60);
+                
+                timeDisplay.textContent = 
+                    `${currentMinutes}:${currentSeconds < 10 ? '0' : ''}${currentSeconds} / 
+                     ${durationMinutes}:${durationSeconds < 10 ? '0' : ''}${durationSeconds}`;
+            }
+            
+            // التحكم في التشغيل/الإيقاف
+            function togglePlay() {
+                if (video.paused) {
+                    video.play();
+                    playBtn.textContent = '❚❚';
+                } else {
+                    video.pause();
+                    playBtn.textContent = '▶';
+                }
+            }
+            
+            // التحكم في الشاشة الكاملة
+            function toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    videoContainer.requestFullscreen().catch(e => console.log(e));
+                } else {
+                    document.exitFullscreen();
                 }
             }
             
@@ -233,6 +282,10 @@
                 initPlayer();
                 document.body.removeEventListener('click', initPlay);
             }, { once: true });
+            
+            // الكشف عن تغيير الاتجاه
+            window.addEventListener('resize', detectOrientation);
+            detectOrientation();
         });
     </script>
 </body>
