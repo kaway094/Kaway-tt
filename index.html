@@ -3,23 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Live Stream Player</title>
+  <title>Live Test Stream</title>
+
+  <!-- Plyr CSS -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <style>
-    body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    #player { width: 100%; max-width: 100%; aspect-ratio: 16/9; }
+    body {
+      margin: 0;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #player {
+      width: 100%;
+      max-width: 900px;
+      aspect-ratio: 16 / 9;
+    }
   </style>
 </head>
 <body>
 
+  <!-- عنصر الفيديو -->
   <video id="player" controls playsinline></video>
 
+  <!-- HLS.js -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <!-- Plyr JS -->
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
   <script>
     const video = document.getElementById('player');
-    const source = "https://www.sportlo.live/BEIN-3/tracks-v1a1/mono.m3u8";
+    const source = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
 
     if (Hls.isSupported()) {
       const hls = new Hls();
@@ -35,7 +52,26 @@
       });
     }
 
-    const player = new Plyr('#player');
+    const player = new Plyr('#player', {
+      controls: [
+        'play',
+        'progress',
+        'current-time',
+        'mute',
+        'volume',
+        'fullscreen'
+      ],
+      i18n: {
+        play: 'Play',
+        pause: 'Pause',
+        mute: 'Mute',
+        unmute: 'Unmute',
+        fullscreen: 'Fullscreen',
+        exitFullscreen: 'Exit fullscreen',
+        currentTime: 'Current time',
+        duration: 'Duration'
+      }
+    });
   </script>
 
 </body>
