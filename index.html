@@ -2,25 +2,45 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>تشغيل الفيديو تلقائيًا في DW Player</title>
-  <script>
-    // محاولة فتح الفيديو مباشرة في تطبيق DW Player
-    window.location.href = "intent://dream4k.co:8080/series/109219152973105/fxnfo9ofnx/1317465.ts#Intent;package=com.dwplayer.app;scheme=http;end;";
-  </script>
+  <title>تشغيل في Houda Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      background-color: #000;
+      background: #111;
       color: white;
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
     }
+    button {
+      background: #00aaff;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      font-size: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0077aa;
+    }
   </style>
 </head>
 <body>
-  <p>جاري تحويلك إلى DW Player لتشغيل الفيديو...</p>
+
+  <button onclick="openHoudaPlayer()">تشغيل في Houda Player</button>
+
+  <script>
+    function openHoudaPlayer() {
+      const videoUrl = "http://dream4k.co:8080/series/109219152973105/fxnfo9ofnx/1317465.ts";
+
+      // استخدم intent: لفتح تطبيق خارجي على أندرويد
+      window.location.href = `intent:${videoUrl}#Intent;type=video/*;package=com.adam.players;end`;
+    }
+  </script>
+
 </body>
 </html>
