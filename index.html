@@ -1,88 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>HLS Player with Quality</title>
-
-  <!-- Plyr CSS -->
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-
+  <meta charset="UTF-8">
+  <title>تشغيل الفيديو تلقائيًا</title>
+  <script>
+    // فتح الفيديو مباشرة في التطبيق
+    window.location.href = "intent://dream4k.co:8080/series/109219152973105/fxnfo9ofnx/1317465.ts#Intent;package=info.t4w.vp;scheme=http;end;";
+  </script>
   <style>
     body {
-      margin: 0;
-      background: #000;
+      background-color: #000;
+      color: white;
+      font-family: sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-    }
-    #player {
-      width: 100%;
-      max-width: 900px;
-      aspect-ratio: 16 / 9;
+      margin: 0;
     }
   </style>
 </head>
 <body>
-
-  <!-- عنصر الفيديو -->
-  <video id="player" controls playsinline></video>
-
-  <!-- HLS.js -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
-  <!-- Plyr JS -->
-  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-
-  <script>
-    const video = document.getElementById('player');
-    const source = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"; // بث فيه جودات مختلفة
-
-    const player = new Plyr(video, {
-      controls: [
-        'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'
-      ],
-      settings: ['quality'],
-      i18n: {
-        quality: 'Quality',
-      }
-    });
-
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(source);
-      hls.attachMedia(video);
-
-      hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        const levels = hls.levels;
-
-        // إنشاء خيارات الجودة
-        const availableQualities = levels.map((level, index) => ({
-          label: level.height + 'p',
-          value: index,
-          default: index === hls.currentLevel
-        }));
-
-        // إعدادات الجودة داخل Plyr
-        player.config.quality = {
-          default: hls.currentLevel,
-          options: availableQualities.map(q => q.value),
-          forced: true,
-          onChange: (quality) => {
-            hls.currentLevel = quality;
-          }
-        };
-
-        player.setQualityOptions = () => {
-          player.config.quality.options = availableQualities.map(q => q.value);
-          player.config.quality.default = hls.currentLevel;
-        };
-
-        player.setQualityOptions();
-      });
-    }
-  </script>
-
+  <p>جاري تشغيل الفيديو في URL Video Player...</p>
 </body>
 </html>
