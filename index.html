@@ -1,46 +1,40 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>تشغيل في Houda Player</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      background: #111;
-      color: white;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    button {
-      background: #00aaff;
-      color: white;
-      border: none;
-      padding: 16px 32px;
-      font-size: 18px;
-      border-radius: 12px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0077aa;
-    }
-  </style>
+    <title>Open Video</title>
+    <style>
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
+  <a href="intent://http://dream4k.co:8080/series/109219152973105/fxnfo9ofnx/1317465.ts#Intent;scheme=xmtv;package=com.xpola.player;end" class="button">
+        مشاهدة الفيديو
+    </a>
 
-  <button onclick="openHoudaPlayer()">تشغيل في Houda Player</button>
+    <script>
+        function enableButton() {
+            document.getElementById('videoButton').style.pointerEvents = 'auto';
+        }
 
-  <script>
-    function openHoudaPlayer() {
-      const videoUrl = "http://dream4k.co:8080/series/109219152973105/fxnfo9ofnx/1317465.ts";
+        function disableButton() {
+            document.getElementById('videoButton').style.pointerEvents = 'none';
+        }
 
-      // استخدم intent: لفتح تطبيق خارجي على أندرويد
-      window.location.href = `intent:${videoUrl}#Intent;type=video/*;package=com.adam.players;end`;
-    }
-  </script>
-
+        window.onload = function() {
+            enableButton();
+        };
+    </script>
 </body>
 </html>
